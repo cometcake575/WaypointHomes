@@ -68,7 +68,7 @@ public class Waypoints extends JavaPlugin implements Listener {
         instance = this;
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
-        empty = SupernovaUtils.createItem(Material.LIGHT_GRAY_STAINED_GLASS_PANE, meta -> {
+        empty = SupernovaUtils.createItem(Material.ORANGE_STAINED_GLASS_PANE, meta -> {
             meta.setHideTooltip(true);
             meta.displayName(Component.empty());
             meta.setCustomModelData(1);
@@ -80,14 +80,14 @@ public class Waypoints extends JavaPlugin implements Listener {
         waypointGuiButtonKey = new NamespacedKey(plugin, "waypoint-gui-button");
         waypointGuiDataKey = new NamespacedKey(plugin, "waypoint-gui-data");
 
-        waypointItem = SupernovaUtils.createItem(Material.PAPER, meta -> {
+        waypointItem = SupernovaUtils.createItem(Material.CLAY_BALL, meta -> {
             meta.setCustomModelData(1);
             meta.getPersistentDataContainer().set(SupernovaUtils.customUsableItemKey, PersistentDataType.BOOLEAN, true);
             meta.getPersistentDataContainer().set(waypointKey, PersistentDataType.BOOLEAN, true);
             meta.displayName(Component.text("Waypoint").decoration(TextDecoration.ITALIC, false));
         });
 
-        ItemStack waypointTransporter = SupernovaUtils.createItem(Material.PAPER, meta -> {
+        ItemStack waypointTransporter = SupernovaUtils.createItem(Material.CLAY_BALL, meta -> {
             meta.setCustomModelData(2);
             meta.getPersistentDataContainer().set(SupernovaUtils.customUsableItemKey, PersistentDataType.BOOLEAN, true);
             meta.setMaxStackSize(1);
@@ -114,7 +114,7 @@ public class Waypoints extends JavaPlugin implements Listener {
                 placeWaypointKey,
                 "I'll be here often.",
                 "Place a Waypoint",
-                SupernovaUtils.createItem(Material.PAPER, meta -> meta.setCustomModelData(1)),
+                waypointItem,
                 CustomAdvancements.AdvancementFrame.TASK,
                 new CustomAdvancements.ParentedAdvancementData(Key.key("minecraft:adventure/root")),
                 false,
@@ -126,7 +126,7 @@ public class Waypoints extends JavaPlugin implements Listener {
                 new NamespacedKey(plugin, "use_transporter"),
                 "Gone with the Wind",
                 "Teleport to a Waypoint with a Waypoint Transporter",
-                SupernovaUtils.createItem(Material.PAPER, meta -> meta.setCustomModelData(2)),
+                waypointTransporter,
                 CustomAdvancements.AdvancementFrame.GOAL,
                 new CustomAdvancements.ParentedAdvancementData(placeWaypointKey),
                 false,
@@ -220,13 +220,13 @@ public class Waypoints extends JavaPlugin implements Listener {
 
         Inventory inventory = CustomGUI.createInventory(CustomGUI.CustomInventoryType.WAYPOINT_TRANSPORTER, 27, Component.text().append(Component.text("\uF000\uE000\uF001").font(Key.key("supernova:waypoint_transporter")).color(NamedTextColor.WHITE)).append(Component.text("Waypoint Transporter - %s".formatted(page+1))).build());
         int finalPage = page;
-        ItemStack left = SupernovaUtils.createItem(Material.LIGHT_GRAY_STAINED_GLASS_PANE, meta -> {
+        ItemStack left = SupernovaUtils.createItem(Material.ORANGE_STAINED_GLASS_PANE, meta -> {
             meta.setCustomModelData(6);
             meta.displayName(Component.text("Left").decoration(TextDecoration.ITALIC, false));
             meta.getPersistentDataContainer().set(waypointGuiButtonKey, PersistentDataType.STRING, "L");
             meta.getPersistentDataContainer().set(waypointGuiDataKey, PersistentDataType.INTEGER, finalPage);
         });
-        ItemStack right = SupernovaUtils.createItem(Material.LIGHT_GRAY_STAINED_GLASS_PANE, meta -> {
+        ItemStack right = SupernovaUtils.createItem(Material.ORANGE_STAINED_GLASS_PANE, meta -> {
             meta.setCustomModelData(7);
             meta.displayName(Component.text("Right").decoration(TextDecoration.ITALIC, false));
             meta.getPersistentDataContainer().set(waypointGuiButtonKey, PersistentDataType.STRING, "R");
@@ -368,7 +368,7 @@ public class Waypoints extends JavaPlugin implements Listener {
         public ItemStack asItem(int page) {
             ItemStack item;
             if (icon == null) {
-                item = SupernovaUtils.createItem(Material.PAPER, meta -> meta.setCustomModelData(1));
+                item = SupernovaUtils.createItem(Material.CLAY_BALL, meta -> meta.setCustomModelData(1));
             } else item = icon.clone();
             ItemMeta meta = item.getItemMeta();
             meta.displayName(name.decoration(TextDecoration.ITALIC, false).color(NamedTextColor.WHITE));
