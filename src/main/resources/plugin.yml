@@ -1,0 +1,7 @@
+name: WaypointHomes
+main: com.starshooterstudios.waypointhomes.Waypoints
+version: 1.0.0
+description: Adds Waypoints, a more balanced and in-world alternative to a /home system
+api-version: 1.21
+authors:
+  - cometcake575
