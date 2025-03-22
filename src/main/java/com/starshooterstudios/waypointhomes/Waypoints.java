@@ -71,7 +71,7 @@ public class Waypoints extends JavaPlugin implements Listener {
         empty = SupernovaUtils.createItem(Material.ORANGE_STAINED_GLASS_PANE, meta -> {
             meta.setHideTooltip(true);
             meta.displayName(Component.empty());
-            meta.setCustomModelData(1);
+            SupernovaUtils.setCustomModelData(meta, 1);
         });
 
         waypointKey = new NamespacedKey(plugin, "waypoint");
@@ -81,14 +81,14 @@ public class Waypoints extends JavaPlugin implements Listener {
         waypointGuiDataKey = new NamespacedKey(plugin, "waypoint-gui-data");
 
         waypointItem = SupernovaUtils.createItem(Material.CLAY_BALL, meta -> {
-            meta.setCustomModelData(1);
+            SupernovaUtils.setCustomModelData(meta, 1);
             meta.getPersistentDataContainer().set(SupernovaUtils.customUsableItemKey, PersistentDataType.BOOLEAN, true);
             meta.getPersistentDataContainer().set(waypointKey, PersistentDataType.BOOLEAN, true);
             meta.displayName(Component.text("Waypoint").decoration(TextDecoration.ITALIC, false));
         });
 
         ItemStack waypointTransporter = SupernovaUtils.createItem(Material.CLAY_BALL, meta -> {
-            meta.setCustomModelData(2);
+            SupernovaUtils.setCustomModelData(meta, 2);
             meta.getPersistentDataContainer().set(SupernovaUtils.customUsableItemKey, PersistentDataType.BOOLEAN, true);
             meta.setMaxStackSize(1);
             meta.getPersistentDataContainer().set(waypointTransporterKey, PersistentDataType.BOOLEAN, true);
@@ -189,11 +189,11 @@ public class Waypoints extends JavaPlugin implements Listener {
 
     public void waypointCheck(Player player, ItemStack item, boolean isMainHand) {
         if (item == null || item.getItemMeta() == null) return;
-        if (item.getPersistentDataContainer().has(waypointTransporterKey)) {
+        if (item.getItemMeta().getPersistentDataContainer().has(waypointTransporterKey)) {
             if (isMainHand) player.swingMainHand();
             else player.swingOffHand();
             openWaypointTransporter(player, 0);
-        } else if (item.getPersistentDataContainer().has(waypointKey)) {
+        } else if (item.getItemMeta().getPersistentDataContainer().has(waypointKey)) {
             Waypoint waypoint = new Waypoint(null, item.getItemMeta().displayName(), player.getLocation(), UUID.randomUUID());
             saveWaypoint(player, waypoint);
 
@@ -221,13 +221,13 @@ public class Waypoints extends JavaPlugin implements Listener {
         Inventory inventory = CustomGUI.createInventory(CustomGUI.CustomInventoryType.WAYPOINT_TRANSPORTER, 27, Component.text().append(Component.text("\uF000\uE000\uF001").font(Key.key("supernova:waypoint_transporter")).color(NamedTextColor.WHITE)).append(Component.text("Waypoint Transporter - %s".formatted(page+1))).build());
         int finalPage = page;
         ItemStack left = SupernovaUtils.createItem(Material.ORANGE_STAINED_GLASS_PANE, meta -> {
-            meta.setCustomModelData(6);
+            SupernovaUtils.setCustomModelData(meta, 6);
             meta.displayName(Component.text("Left").decoration(TextDecoration.ITALIC, false));
             meta.getPersistentDataContainer().set(waypointGuiButtonKey, PersistentDataType.STRING, "L");
             meta.getPersistentDataContainer().set(waypointGuiDataKey, PersistentDataType.INTEGER, finalPage);
         });
         ItemStack right = SupernovaUtils.createItem(Material.ORANGE_STAINED_GLASS_PANE, meta -> {
-            meta.setCustomModelData(7);
+            SupernovaUtils.setCustomModelData(meta, 7);
             meta.displayName(Component.text("Right").decoration(TextDecoration.ITALIC, false));
             meta.getPersistentDataContainer().set(waypointGuiButtonKey, PersistentDataType.STRING, "R");
             meta.getPersistentDataContainer().set(waypointGuiDataKey, PersistentDataType.INTEGER, finalPage);
@@ -276,6 +276,7 @@ public class Waypoints extends JavaPlugin implements Listener {
         ItemStack item = null;
         if (getWaypointData().contains(c + ".icon")) {
             byte[] bytes = (byte[]) getWaypointData().get(c + ".icon");
+            if (bytes == null) return null;
             item = ItemStack.deserializeBytes(bytes);
         }
 
@@ -296,7 +297,9 @@ public class Waypoints extends JavaPlugin implements Listener {
         if (section == null) return List.of();
         List<Waypoint> waypoints = new ArrayList<>();
         for (String s : section.getKeys(false)) {
-            waypoints.add(getWaypoint(player, s));
+            Waypoint w = getWaypoint(player, s);
+            if (w == null) continue;
+            waypoints.add(w);
         }
         return waypoints;
     }
@@ -308,14 +311,14 @@ public class Waypoints extends JavaPlugin implements Listener {
             if (gui.getInventory().equals(event.getClickedInventory())) {
                 event.setCancelled(true);
                 if (event.getCurrentItem() == null || event.getCurrentItem().getItemMeta() == null) return;
-                String s = event.getCurrentItem().getPersistentDataContainer().get(waypointGuiButtonKey, PersistentDataType.STRING);
+                String s = event.getCurrentItem().getItemMeta().getPersistentDataContainer().get(waypointGuiButtonKey, PersistentDataType.STRING);
                 if (s != null) {
                     switch (s) {
-                        case "L" -> openWaypointTransporter(event.getWhoClicked(), event.getCurrentItem().getPersistentDataContainer().getOrDefault(waypointGuiDataKey, PersistentDataType.INTEGER, 0)-1);
-                        case "R" -> openWaypointTransporter(event.getWhoClicked(), event.getCurrentItem().getPersistentDataContainer().getOrDefault(waypointGuiDataKey, PersistentDataType.INTEGER, 0)+1);
+                        case "L" -> openWaypointTransporter(event.getWhoClicked(), event.getCurrentItem().getItemMeta().getPersistentDataContainer().getOrDefault(waypointGuiDataKey, PersistentDataType.INTEGER, 0)-1);
+                        case "R" -> openWaypointTransporter(event.getWhoClicked(), event.getCurrentItem().getItemMeta().getPersistentDataContainer().getOrDefault(waypointGuiDataKey, PersistentDataType.INTEGER, 0)+1);
                     }
                 }
-                if (!event.getCurrentItem().getPersistentDataContainer().has(waypointDataKey)) return;
+                if (!event.getCurrentItem().getItemMeta().getPersistentDataContainer().has(waypointDataKey)) return;
                 Waypoint waypoint = Waypoint.fromItem(event.getWhoClicked(), event.getCurrentItem());
                 if (event.getClick().isRightClick()) {
                     if (event.getClick().isShiftClick()) {
@@ -332,7 +335,7 @@ public class Waypoints extends JavaPlugin implements Listener {
                         }
                         removeWaypoint(event.getWhoClicked(), waypoint);
                         save();
-                        openWaypointTransporter(event.getWhoClicked(), event.getCurrentItem().getPersistentDataContainer().getOrDefault(waypointGuiDataKey, PersistentDataType.INTEGER, 0));
+                        openWaypointTransporter(event.getWhoClicked(), event.getCurrentItem().getItemMeta().getPersistentDataContainer().getOrDefault(waypointGuiDataKey, PersistentDataType.INTEGER, 0));
                     } else {
                         ItemStack old = waypoint.icon;
                         ItemStack cursor = event.getCursor();
@@ -341,7 +344,7 @@ public class Waypoints extends JavaPlugin implements Listener {
                         event.getWhoClicked().setItemOnCursor(old);
                         saveWaypoint(event.getWhoClicked(), waypoint);
                         save();
-                        openWaypointTransporter(event.getWhoClicked(), event.getCurrentItem().getPersistentDataContainer().getOrDefault(waypointGuiDataKey, PersistentDataType.INTEGER, 0));
+                        openWaypointTransporter(event.getWhoClicked(), event.getCurrentItem().getItemMeta().getPersistentDataContainer().getOrDefault(waypointGuiDataKey, PersistentDataType.INTEGER, 0));
                     }
                     return;
                 } else if (event.getClick().isShiftClick()) return;
@@ -368,7 +371,7 @@ public class Waypoints extends JavaPlugin implements Listener {
         public ItemStack asItem(int page) {
             ItemStack item;
             if (icon == null) {
-                item = SupernovaUtils.createItem(Material.CLAY_BALL, meta -> meta.setCustomModelData(1));
+                item = SupernovaUtils.createItem(Material.CLAY_BALL, meta -> SupernovaUtils.setCustomModelData(meta, 1));
             } else item = icon.clone();
             ItemMeta meta = item.getItemMeta();
             meta.displayName(name.decoration(TextDecoration.ITALIC, false).color(NamedTextColor.WHITE));
@@ -378,7 +381,7 @@ public class Waypoints extends JavaPlugin implements Listener {
                 case NORMAL -> "Overworld";
                 case NETHER -> "Nether";
                 case THE_END -> "End";
-                case CUSTOM -> "Portal Network";
+                case CUSTOM -> "Unknown";
             };
             meta.lore(List.of(
                     Component.text("X: %d, Y: %d, Z: %d in The %s".formatted(Math.round(location.x()), Math.round(location.y()), Math.round(location.z()), worldName)).color(NamedTextColor.AQUA).decoration(TextDecoration.ITALIC, false),
@@ -394,7 +397,7 @@ public class Waypoints extends JavaPlugin implements Listener {
         }
 
         public static Waypoint fromItem(HumanEntity player, ItemStack item) {
-            String s = item.getPersistentDataContainer().get(waypointDataKey, PersistentDataType.STRING);
+            String s = item.getItemMeta().getPersistentDataContainer().get(waypointDataKey, PersistentDataType.STRING);
             return Waypoints.instance.getWaypoint(player, s);
         }
     }

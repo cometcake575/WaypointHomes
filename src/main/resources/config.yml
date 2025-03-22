@@ -1,5 +1,8 @@
 # If you wish to use your own resource pack, disable the pack here and merge https://github.com/cometcake575/WaypointHomes/raw/refs/heads/main/WaypointPack.zip with your own pack
 enable-resource-pack: true
 
+# Required trust level to set a Waypoint, not applicable if you do not have GriefPrevention
+grief-prevention-required-access: TRUST
+
 # Do not touch this!
 config-version: 1.0.0

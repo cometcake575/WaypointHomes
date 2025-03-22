@@ -8,14 +8,17 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class CustomAdvancements {
-    @SuppressWarnings("deprecation")
+
+    @SuppressWarnings({"deprecation", "UnstableApiUsage"})
     public static @NotNull Advancement makeAdvancement(NamespacedKey key, String name, String description, ItemStack icon, AdvancementFrame frame, AdvancementData data, boolean hidden, boolean showToast, boolean announce, boolean showEnchanted) {
         String s = data.getAdvancementFormat();
         s = s.replaceFirst("ITEM_ID", icon.getType().getKey().asString());
-        int cmd;
-        if (icon.getItemMeta().hasCustomModelData()) cmd = icon.getItemMeta().getCustomModelData();
-        else cmd = 0;
-        s = s.replaceFirst("CUSTOM_MODEL_DATA", String.valueOf(cmd));
+        String cmd;
+        if (icon.getItemMeta().hasCustomModelData()) {
+            cmd = icon.getItemMeta().getCustomModelDataComponent().getStrings().getFirst();
+        }
+        else cmd = "0";
+        s = s.replaceFirst("CUSTOM_MODEL_DATA", cmd);
         s = s.replaceFirst("SHOW_ENCHANTED", showEnchanted ? "true" : "false");
         s = s.replaceFirst("ADVANCEMENT", name);
         s = s.replaceFirst("ADVANCEMENT_DESCRIPTION", description);
@@ -74,7 +77,11 @@ public class CustomAdvancements {
                   "id": "ITEM_ID",
                   "count": 1,
                   "components": {
-                    "minecraft:custom_model_data": CUSTOM_MODEL_DATA,
+                    "minecraft:custom_model_data": {
+                        "strings": [
+                            "CUSTOM_MODEL_DATA"
+                        ]
+                    },
                     "minecraft:enchantment_glint_override": SHOW_ENCHANTED
                   }
                 },

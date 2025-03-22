@@ -6,8 +6,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Collections;
 
 public class SupernovaUtils implements Listener {
     public static NamespacedKey customItemKey;
@@ -33,6 +36,13 @@ public class SupernovaUtils implements Listener {
         return item;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
+    public static void setCustomModelData(ItemMeta meta, int value) {
+        CustomModelDataComponent comp = meta.getCustomModelDataComponent();
+        comp.setStrings(Collections.singletonList(String.valueOf(value)));
+        meta.setCustomModelDataComponent(comp);
+    }
+
     public interface MetaMaker {
         void makeMeta(ItemMeta meta);
     }
@@ -41,7 +51,7 @@ public class SupernovaUtils implements Listener {
     public void onPrepareItemCraft(PrepareItemCraftEvent event) {
         for (ItemStack item : event.getInventory().getMatrix()) {
             if (item == null || item.getItemMeta() == null) continue;
-            if (item.getPersistentDataContainer().has(customItemKey)) {
+            if (item.getItemMeta().getPersistentDataContainer().has(customItemKey)) {
                 event.getInventory().setResult(null);
             }
         }
